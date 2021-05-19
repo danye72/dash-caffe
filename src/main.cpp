@@ -3,15 +3,15 @@
 #include <ESP8266HTTPClient.h>
 #include <ArduinoJson.h>
 #include "WiFiClientSecureBearSSL.h"
-#include <qrcode.h>
-#include <SSD1306.h>
+//#include <qrcode.h>
+//#include <SSD1306.h>
 #include <ESP8266WebServer.h>
 
-SSD1306  display(0x3c, D1, D2);
-QRcode qrcode (&display);
+//SSD1306  display(0x3c, D1, D2);
+//QRcode qrcode (&display);
 
-const char* wifiName = "WDAN";
-const char* wifiPass = "ciottolame123casa";
+const char* wifiName = "master";
+const char* wifiPass = "dash-pay-machine";
 bool slave = false;
 const float prezzo_prodotto_eur = 0.5;
 float prezzo_prodotto_dash;
@@ -63,11 +63,11 @@ void calcola_prezzo_dash() {
   }
 }
 
-void eroga_prodotto() {
-  digitalWrite(LED_BUILTIN, LOW); 
-  delay(5000);
-  digitalWrite(LED_BUILTIN, HIGH);
-  Serial.println("Prodotto erogato!");
+void carica_credito() {
+  digitalWrite(4, HIGH); 
+  delay(1000);
+  digitalWrite(4, LOW);
+  Serial.println("Credito caricato!");
 }
 
 void check_pagamento(String ind) {
@@ -92,7 +92,7 @@ void check_pagamento(String ind) {
       Serial.println(" Dash"); 
       http.end(); //Close connection
       if (pay >= (prezzo_prodotto_dash)) {
-        eroga_prodotto();
+        carica_credito();
         return;
       }      
     }
@@ -101,30 +101,30 @@ void check_pagamento(String ind) {
   Serial.println("Sessione di pagamento terminata");
 }
 
-void mostra_qrcode() {
-  Serial.println("Avvio sessione da pulsante...");
-  calcola_prezzo_dash();
-  String qrcode_testo;
-  qrcode_testo = "dash:"+String(wallet_dash[scelta_indirizzo])+"?amount="+String(prezzo_prodotto_dash); 
-  qrcode.init();  
-  qrcode.create(qrcode_testo);
+// void mostra_qrcode() {
+//   Serial.println("Avvio sessione da pulsante...");
+//   calcola_prezzo_dash();
+//   String qrcode_testo;
+//   qrcode_testo = "dash:"+String(wallet_dash[scelta_indirizzo])+"?amount="+String(prezzo_prodotto_dash); 
+//   qrcode.init();  
+//   qrcode.create(qrcode_testo);
 
-  Serial.print("Mi aspetto un pagamento di ");
-  Serial.print(prezzo_prodotto_dash,6);
-  Serial.println(" Dash");
-  Serial.print("Indirizzo: ");
-  Serial.println(wallet_dash[scelta_indirizzo]);
+//   Serial.print("Mi aspetto un pagamento di ");
+//   Serial.print(prezzo_prodotto_dash,6);
+//   Serial.println(" Dash");
+//   Serial.print("Indirizzo: ");
+//   Serial.println(wallet_dash[scelta_indirizzo]);
 
-  check_pagamento(wallet_dash[scelta_indirizzo]);
+//   check_pagamento(wallet_dash[scelta_indirizzo]);
 
-  display.clear();
-  display.display();
+//   display.clear();
+//   display.display();
 
-  scelta_indirizzo++;
-  if (scelta_indirizzo > 17 ) {
-    scelta_indirizzo = 0;
-  }
-}
+//   scelta_indirizzo++;
+//   if (scelta_indirizzo > 17 ) {
+//     scelta_indirizzo = 0;
+//   }
+// }
 
 void start() {
   String indirizzo = server.arg("indirizzo");
@@ -141,9 +141,9 @@ void start() {
 }
 
 void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, HIGH); 
-  pinMode(D5, INPUT);
+  pinMode(4, OUTPUT);
+  digitalWrite(4, LOW); 
+  pinMode(5, INPUT);
 
   Serial.begin(9600);
   delay(10);
@@ -151,9 +151,9 @@ void setup() {
   Serial.print("Connecting to ");
   Serial.println(wifiName);
 
-  display.init();
-  display.clear();
-  display.display();
+  // display.init();
+  // display.clear();
+  // display.display();
 
   WiFi.begin(wifiName, wifiPass);
 
@@ -171,8 +171,8 @@ void setup() {
 
 void loop() {
   server.handleClient();
-  if(digitalRead(D5) == 1) {
-    slave = false;
-    mostra_qrcode();
-  }
+  // if(digitalRead(5) == 1) {
+  //   slave = false;
+  //   mostra_qrcode();
+  // }
 }
