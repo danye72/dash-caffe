@@ -3,42 +3,11 @@
 #include <ESP8266HTTPClient.h>
 #include <ArduinoJson.h>
 #include "WiFiClientSecureBearSSL.h"
-//#include <qrcode.h>
-//#include <SSD1306.h>
 #include <ESP8266WebServer.h>
-
-//SSD1306  display(0x3c, D1, D2);
-//QRcode qrcode (&display);
 
 const char* wifiName = "master";
 const char* wifiPass = "dash-pay-machine";
 bool slave = false;
-const float prezzo_prodotto_eur = 0.5;
-float prezzo_prodotto_dash;
-int scelta_indirizzo = 0;
-const char* wallet_dash[] = {
-  "Xg25shPiayEecsmDemcRrJE5ZEnL2CeAPs",
-  "XpgMpGuWZVKAEzdgk7zCDWtsoGBN98DZZj",
-  "XoY8E5f3esWbB7admkCsXV3bNevnNUamkZ",
-  "XqRAPygXK3abBWqABPryVdt6AdyWGdx64G",
-  "XpR7hwuu2XxnX1GjCYtVRJetzobQprskX4",
-  "XsXuu562DD83DidxNeFfciZ3qdhHonZp9w",
-  "XqsMnAAePXsn7aBCXWuCXVN2VGbjs546R1",
-  "XxaoCGg8ZgrbPVwBCbTJS7o6QmniDMjBSk",
-  "Xw4kqBpYjHrvfux5DyVcpcppGh1hH5aWmE",
-  "XofYRXMKtaY7BRQZxBUgi133JcZkPfkke1",
-  "XxUaCLxQ8Vb6npWZYnK6Mbc4Mg2BHk5z2J",
-  "Xe3h9D1n3WH4hEWKyKTHb7yALK2kCTHEmu",
-  "Xyf9ZXBQqPJNQdAkHawdFAKASj2MVVrsyA",
-  "XnkotY9jE1xivipcXcvq6QLC7mYMoeQEtZ",
-  "Xwz7793Z9mAgyVWDj49gPeznrcXGPV161H",
-  "XiRfqffP8yw9TKVSNw2NFZnpPnMFG8HQAt",
-  "XivtEUW3YzDnezBqjmCZvcvv1GzD6d5ZBj",
-  "Xmu8iRjXvezgxS5QbvU4tnzkUE846XZL14"
-  };
-
-
-//Web Server address to read/write from 
 
 WiFiClientSecure client;
 ESP8266WebServer server(80);
@@ -101,31 +70,6 @@ void check_pagamento(String ind) {
   Serial.println("Sessione di pagamento terminata");
 }
 
-// void mostra_qrcode() {
-//   Serial.println("Avvio sessione da pulsante...");
-//   calcola_prezzo_dash();
-//   String qrcode_testo;
-//   qrcode_testo = "dash:"+String(wallet_dash[scelta_indirizzo])+"?amount="+String(prezzo_prodotto_dash); 
-//   qrcode.init();  
-//   qrcode.create(qrcode_testo);
-
-//   Serial.print("Mi aspetto un pagamento di ");
-//   Serial.print(prezzo_prodotto_dash,6);
-//   Serial.println(" Dash");
-//   Serial.print("Indirizzo: ");
-//   Serial.println(wallet_dash[scelta_indirizzo]);
-
-//   check_pagamento(wallet_dash[scelta_indirizzo]);
-
-//   display.clear();
-//   display.display();
-
-//   scelta_indirizzo++;
-//   if (scelta_indirizzo > 17 ) {
-//     scelta_indirizzo = 0;
-//   }
-// }
-
 void start() {
   String indirizzo = server.arg("indirizzo");
   String amount = server.arg("amount");
@@ -138,6 +82,7 @@ void start() {
   Serial.println(indirizzo);
 
   check_pagamento(indirizzo);
+  
 }
 
 void setup() {
@@ -150,10 +95,6 @@ void setup() {
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(wifiName);
-
-  // display.init();
-  // display.clear();
-  // display.display();
 
   WiFi.begin(wifiName, wifiPass);
 
@@ -171,8 +112,4 @@ void setup() {
 
 void loop() {
   server.handleClient();
-  // if(digitalRead(5) == 1) {
-  //   slave = false;
-  //   mostra_qrcode();
-  // }
 }
