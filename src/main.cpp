@@ -14,24 +14,6 @@ ESP8266WebServer server(80);
 HTTPClient http; //Object of class HTTPClient
 DynamicJsonDocument doc(1024);
 
-void calcola_prezzo_dash() {
-  const char* host = "https://www.alfacoins.com/api/rate/DASH_EUR.json";
-  if (WiFi.status() == WL_CONNECTED) {            
-    client.setInsecure(); //the magic line, use with caution
-    client.connect(host, 443);
-    http.begin(client, host);
-
-    if (http.GET() == HTTP_CODE_OK) {    
-      String payload = http.getString();
-      payload.replace("[","");
-      payload.replace("]","");
-      payload.replace("\"","");
-      prezzo_prodotto_dash = prezzo_prodotto_eur / payload.toFloat();
-      http.end(); //Close connection
-    }
-  }
-}
-
 void carica_credito() {
   digitalWrite(4, HIGH); 
   delay(1000);
