@@ -7,6 +7,11 @@
 
 const char* wifiName = "master";
 const char* wifiPass = "dash-pay-machine";
+
+IPAddress local_IP(192, 168, 1, 10);
+IPAddress gateway(192, 168, 1, 1);
+IPAddress subnet(255, 255, 255, 0);
+
 bool slave = false;
 
 float prezzo_prodotto_dash;
