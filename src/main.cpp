@@ -1,83 +1,45 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include <ESP8266HTTPClient.h>
-#include <ArduinoJson.h>
-#include "WiFiClientSecureBearSSL.h"
+#include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 
 const char* wifiName = "master";
 const char* wifiPass = "dash-pay-machine";
 
-IPAddress local_IP(192, 168, 1, 10);
-IPAddress gateway(192, 168, 1, 1);
+IPAddress local_IP(192, 168, 43, 214);
+IPAddress gateway(192, 168, 43, 1);
 IPAddress subnet(255, 255, 255, 0);
 
-bool slave = false;
-
-float prezzo_prodotto_dash;
-
-WiFiClientSecure client;
 ESP8266WebServer server(80);
-HTTPClient http; //Object of class HTTPClient
-DynamicJsonDocument doc(1024);
 
-void carica_credito() {
-  digitalWrite(4, HIGH); 
-  delay(1000);
-  digitalWrite(4, LOW);
-  Serial.println("Credito caricato!");
-}
-
-void check_pagamento(String ind) {
-  bool esito_pagamento = false;
-  Serial.println("Avvio controllo pagamento...");
-  String host = "https://chain.so/api/v2/get_address_received/Dash/"+ind;
-  int check_num = 0;
-  while (esito_pagamento == false && check_num < 3){
-    client.setInsecure(); //the magic line, use with caution
-    client.connect(host, 443);
-    http.begin(client, host);
-    if (http.GET() == HTTP_CODE_OK)
-    {    
-      String payload = http.getString(); 
-      // Serial.println(payload);
-      deserializeJson(doc, payload);
-      JsonObject obj = doc.as<JsonObject>();
-      String data = obj["data"]["unconfirmed_received_value"];
-      float pay = data.toFloat();
-      Serial.print("Ricevuto pagamento di ");
-      Serial.print(pay,6);
-      Serial.println(" Dash"); 
-      http.end(); //Close connection
-      if (pay >= (prezzo_prodotto_dash)) {
-        carica_credito();
-        return;
-      }      
-    }
-    check_num ++;
+void carica_credito(int imp, int del) {
+  for (int i=1; i<=imp; i++){
+    digitalWrite(4, HIGH); 
+    delay(del);
+    digitalWrite(4, LOW);
+    delay(del);
   }
-  Serial.println("Sessione di pagamento terminata");
+    Serial.println("Credito caricato!");
 }
 
 void start() {
-  String indirizzo = server.arg("indirizzo");
-  String amount = server.arg("amount");
-  prezzo_prodotto_dash = amount.toFloat();
+  server.send(200, "text/plain", "Comando ricevuto!");
+  int impulsi = server.arg("impulsi").toInt();
+  int delay_impulsi = server.arg("delay_impulsi").toInt();
   Serial.println("Avvio sessione da smartphone...");
-  Serial.print("Mi aspetto un pagamento di ");
-  Serial.print(amount);
-  Serial.println(" Dash");
-  Serial.print("Indirizzo: ");
-  Serial.println(indirizzo);
+  Serial.print("Carico ");
+  Serial.print(impulsi);
+  Serial.println(" impulsi");
+  Serial.print("Con delay ");
+  Serial.println(delay_impulsi);
 
-  check_pagamento(indirizzo);
+  carica_credito(impulsi,delay_impulsi);
   
 }
 
 void setup() {
   pinMode(4, OUTPUT);
   digitalWrite(4, LOW); 
-  pinMode(5, INPUT);
 
   Serial.begin(9600);
   delay(10);
